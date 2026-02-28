@@ -1,0 +1,33 @@
+# Dependencias
+node_modules/
+dist/
+build/
+
+# Variables de entorno (¡CRÍTICO!)
+.env
+.env.local
+.env.production
+*.env
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker
+.docker/
+# No ignoramos el docker-compose.yml porque es parte de la infra
+
+# TypeScript
+*.tsbuildinfo
+
+# Editores y Sistema
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
