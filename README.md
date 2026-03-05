@@ -67,3 +67,10 @@ export const updateTaskStatusSchema = z.object({
     errorMap: () => ({ message: "Estado de tarea no válido" })
   })
 });
+
+👨‍💻 Author
+
+Juan Manuel Alvarez Rodriguez
+Backend / Full Stack Developer
+
+LinkedIn: https://linkedin.com/in/juan-manuel-a-16bb99127/
