@@ -3,7 +3,7 @@ import { TaskProps } from '../../domain/task.entity';
 import { ITaskRepository } from '../../domain/task.repository';
 
 export class PostgresTaskRepository implements ITaskRepository {
-  constructor(private readonly db: Pool) {}
+  constructor(private readonly pool: Pool) {}
 
   async save(task: TaskProps): Promise<void> {
     const query = `
@@ -14,20 +14,19 @@ export class PostgresTaskRepository implements ITaskRepository {
       task.id, task.userId, task.title, task.description, 
       task.status, task.priority, task.dueDate, task.createdAt, task.updatedAt
     ];
-    await this.db.query(query, values);
+    await this.pool.query(query, values);
   }
 
-  async findById(id: string): Promise<TaskProps | null> {
-    const res = await this.db.query('SELECT * FROM tasks WHERE id = $1', [id]);
-    return res.rows[0] || null;
-  }
-
-  async findAllByUser(userId: string): Promise<TaskProps[]> {
-    const res = await this.db.query(
-      'SELECT * FROM tasks WHERE user_id = $1 ORDER BY created_at DESC', 
-      [userId]
+  async findById(id: string): Promise<any> {
+    const result = await this.pool.query(
+      'SELECT id, user_id, title, description, status, priority, due_date, created_at, updated_at FROM tasks WHERE id = $1',
+      [id]
     );
-    return res.rows.map(row => ({
+
+    const row = result.rows[0];
+    if (!row) return null;
+
+    return {
       id: row.id,
       userId: row.user_id,
       title: row.title,
@@ -37,20 +36,26 @@ export class PostgresTaskRepository implements ITaskRepository {
       dueDate: row.due_date,
       createdAt: row.created_at,
       updatedAt: row.updated_at
-    }));
+    };
   }
 
   async update(task: TaskProps): Promise<void> {
     const query = `
-      UPDATE tasks SET title = $1, description = $2, status = $3, priority = $4, updated_at = $5
-      WHERE id = $6 AND user_id = $7
+      UPDATE tasks SET status = $1, updated_at = $2
+      WHERE id = $3
     `;
-    await this.db.query(query, [
-      task.title, task.description, task.status, task.priority, new Date(), task.id, task.userId
-    ]);
+    await this.pool.query(query, [task.status, task.updatedAt, task.id]);
   }
 
-  async delete(id: string, userId: string): Promise<void> {
-    await this.db.query('DELETE FROM tasks WHERE id = $1 AND user_id = $2', [id, userId]);
+  async delete(id: string): Promise<void> {
+    await this.pool.query('DELETE FROM tasks WHERE id = $1', [id]);
+  }
+
+  async findAllByUser(userId: string): Promise<TaskProps[]> {
+    const result = await this.pool.query(
+      'SELECT id, user_id as "userId", title, description, status, priority, due_date as "dueDate", created_at as "createdAt", updated_at as "updatedAt" FROM tasks WHERE user_id = $1',
+      [userId]
+    );
+    return result.rows;
   }
 }

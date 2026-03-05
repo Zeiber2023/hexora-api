@@ -5,5 +5,5 @@ export interface ITaskRepository {
   findById(id: string): Promise<TaskProps | null>;
   findAllByUser(userId: string): Promise<TaskProps[]>; // Usaremos este como estándar
   update(task: TaskProps): Promise<void>;
-  delete(id: string, userId: string): Promise<void>;
+  delete(id: string): Promise<void>;
 }
